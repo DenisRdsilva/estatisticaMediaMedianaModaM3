@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estatística: Média, Mediana e Moda - Interativo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f9fcfc;
+      color: #208f91;
+      margin: 20px;
+      max-width: 900px;
+    }
+
+    h1,
+    h2 {
+      color: #3ca8aa;
+    }
+
+    section {
+      margin-bottom: 40px;
+      padding: 20px;
+      background: #e0f0f1;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(32, 143, 145, 0.2);
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+      border: 2px solid #58c1c3;
+      border-radius: 5px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #208f91;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #3ca8aa;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #208f91;
+    }
+
+    .ruler {
+      position: relative;
+      margin-top: 30px;
+      height: 80px;
+      background: linear-gradient(to right, #90f3f4 0%, #74dadb 100%);
+      border-radius: 10px;
+      user-select: none;
+    }
+
+    .tick {
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: #208f91;
+      bottom: 0;
+    }
+
+    .tick-label {
+      position: absolute;
+      bottom: 22px;
+      font-size: 0.8em;
+      color: #3ca8aa;
+      user-select: none;
+    }
+
+    .marker {
+      position: absolute;
+      top: 15px;
+      width: 12px;
+      height: 40px;
+      background-color: #208f91;
+      border-radius: 3px;
+      opacity: 0.9;
+      transition: left 0.3s ease;
+      cursor: pointer;
+    }
+
+    .marker-label {
+      position: absolute;
+      top: 58px;
+      width: 50px;
+      font-size: 0.9em;
+      color: #208f91;
+      font-weight: 700;
+      text-align: center;
+      user-select: none;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      font-weight: 700;
+    }
+
+    .correct {
+      color: #208f91;
+    }
+
+    .wrong {
+      color: #cc4b37;
+    }
+
+    #btnToggleResults {
+      background: none;
+      border: none;
+      cursor: pointer;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+
+    #btnToggleResults svg {
+      width: 28px;
+      height: 28px;
+      fill: #208f91;
+      transition: fill 0.3s ease;
+    }
+
+    #btnToggleResults:hover svg {
+      fill: #3ca8aa;
+    }
+
+    /* Responsividade simples para a régua */
+    @media(max-width: 500px) {
+      .ruler {
+        height: 70px;
+      }
+
+      .marker-label {
+        font-size: 0.75em;
+        width: 40px;
+        top: 50px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Noções de Estatística: Média, Mediana e Moda</h1>
+
+  <section>
+    <h2>Introdução</h2>
+    <p>Imagine que queremos saber a <strong>média</strong> da altura de uma turma de estudantes, ou identificar qual é a
+      altura que mais se repete (a <strong>moda</strong>) ou o valor que fica no meio quando as alturas estão ordenadas
+      (a <strong>mediana</strong>). Esses conceitos ajudam a resumir grandes conjuntos de dados e entender tendências.
+    </p>
+  </section>
+
+  <section>
+    <h2>Definições</h2>
+    <ul>
+      <li><strong>Média:</strong> é o valor obtido somando todos os dados e dividindo pela quantidade total de dados.
+      </li>
+      <li><strong>Mediana:</strong> é o valor que está no centro da lista de dados ordenados (do menor para o maior). Se
+        a quantidade for par, é a média dos dois valores centrais.</li>
+      <li><strong>Moda:</strong> é o valor que aparece com maior frequência nos dados. Pode ter mais de uma moda ou
+        nenhuma.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Experimente você mesmo!</h2>
+    <label for="inputDados">Insira números separados por vírgula (ex: 3, 5, 7, 5, 9):</label>
+    <input type="text" id="inputDados" placeholder="Digite os números aqui..." autocomplete="off" />
+
+    <button onclick="processarDados()">Processar Dados</button>
+
+    <button id="btnToggleResults" title="Mostrar/Ocultar resultados" aria-label="Mostrar/Ocultar resultados" disabled>
+      <!-- Ícone olho -->
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z" />
+      </svg>
+    </button>
+
+    <div class="result" id="resultado" style="display:none;"></div>
+
+    <div class="ruler" id="ruler" aria-label="Régua numérica interativa"></div>
+  </section>
+
+  <section>
+    <h2>Exercício Prático</h2>
+    <p>Considere os números abaixo e responda selecionando os valores na régua:</p>
+    <p><strong>Dados:</strong> 2, 4, 4, 5, 7, 9, 9, 9, 10</p>
+
+    <label>Selecione o valor da <strong>média</strong>:</label>
+    <div id="exMediaSelector" class="selector">Clique na régua para posicionar o marcador</div>
+
+    <label>Selecione o valor da <strong>mediana</strong>:</label>
+    <div id="exMedianaSelector" class="selector">Clique na régua para posicionar o marcador</div>
+
+    <label>Selecione o valor da <strong>moda</strong>:</label>
+    <div id="exModaSelector" class="selector">Clique na régua para posicionar o marcador</div>
+
+    <button onclick="validarExercicio()">Enviar Respostas</button>
+    <div id="feedbackExercicio" class="feedback"></div>
+  </section>
+
+  <script>
+    // Funções básicas cálculo
+    function calcularMedia(arr) {
+      let soma = arr.reduce((a, b) => a + b, 0);
+      return soma / arr.length;
+    }
+    function calcularMediana(arr) {
+      const sorted = [...arr].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      if (sorted.length % 2 !== 0) {
+        return sorted[mid];
+      } else {
+        return (sorted[mid - 1] + sorted[mid]) / 2;
+      }
+    }
+    function calcularModa(arr) {
+      const freq = {};
+      let maxFreq = 0;
+      let modas = [];
+
+      arr.forEach(num => {
+        freq[num] = (freq[num] || 0) + 1;
+        if (freq[num] > maxFreq) maxFreq = freq[num];
+      });
+
+      for (const num in freq) {
+        if (freq[num] === maxFreq && maxFreq > 1) {
+          modas.push(Number(num));
+        }
+      }
+      return modas.length === 0 ? ['Nenhuma'] : modas;
+    }
+
+    // Estado global para o exercício
+    let dadosInterativos = [];
+    let minDados, maxDados, startRuler, endRuler;
+    const ruler = document.getElementById('ruler');
+    const resultadoEl = document.getElementById('resultado');
+    const btnToggleResults = document.getElementById('btnToggleResults');
+
+    // Marcadores para experimentação
+    let markerMedia, markerMediana, markerModa;
+    let showResults = false;
+
+    // Marcadores para o exercício prático
+    let exMarkers = {
+      media: null,
+      mediana: null,
+      moda: null,
+    };
+
+    // Processa os dados do input, só prepara para mostrar resultados
+    function processarDados() {
+      const input = document.getElementById('inputDados').value;
+      if (!input.trim()) {
+        alert('Por favor, insira números separados por vírgula.');
+        return;
+      }
+      const valoresStr = input.split(',');
+      let valores = [];
+      for (let v of valoresStr) {
+        let num = parseFloat(v.trim());
+        if (isNaN(num)) {
+          alert('Entrada inválida: "' + v.trim() + '". Use apenas números.');
+          return;
+        }
+        valores.push(num);
+      }
+      if (valores.length === 0) {
+        alert('Insira pelo menos um número válido.');
+        return;
+      }
+
+      dadosInterativos = valores;
+      minDados = Math.min(...dadosInterativos);
+      maxDados = Math.max(...dadosInterativos);
+      let padding = (maxDados - minDados) * 0.1 || 1;
+      startRuler = minDados - padding;
+      endRuler = maxDados + padding;
+
+      // Desenha régua e marcadores (invisíveis ainda)
+      desenharRuler(dadosInterativos);
+
+      // Limpa resultado e oculta
+      resultadoEl.style.display = 'none';
+      resultadoEl.innerHTML = '';
+      btnToggleResults.disabled = false;
+      showResults = false;
+      btnToggleResults.setAttribute('aria-pressed', 'false');
+    }
+
+    // Desenha a régua com ticks e marcadores fixos para dados e marcadores móveis para os cálculos
+    function desenharRuler(arr) {
+      ruler.innerHTML = '';
+
+      const width = ruler.clientWidth || 600;
+      const height = 80;
+
+      // Ticks
+      const numTicks = 20;
+      for (let i = 0; i <= numTicks; i++) {
+        const pos = (i / numTicks) * width;
+        const val = startRuler + ((endRuler - startRuler) * i / numTicks);
+        const tick = document.createElement('div');
+        tick.className = 'tick';
+        tick.style.left = pos + 'px';
+
+        const label = document.createElement('div');
+        label.className = 'tick-label';
+        label.style.left = (pos - 10) + 'px';
+        label.textContent = val.toFixed(1);
+
+        ruler.appendChild(tick);
+        ruler.appendChild(label);
+      }
+
+      // Função para converter valor para posição na régua
+      function valToPos(v) {
+        return ((v - startRuler) / (endRuler - startRuler)) * width;
+      }
+
+      // Criar marcadores móveis para média, mediana e moda (invisíveis até showResults true)
+      markerMedia = criarMarcador('Média', valToPos(calcularMedia(arr)), '#208f91');
+      markerMediana = criarMarcador('Mediana', valToPos(calcularMediana(arr)), '#3ca8aa');
+      const modaVals = calcularModa(arr);
+      // Só pega a primeira moda para o marcador (ou nenhum se 'Nenhuma')
+      const modaVal = (modaVals[0] !== 'Nenhuma') ? modaVals[0] : null;
+      markerModa = modaVal !== null ? criarMarcador('Moda', valToPos(modaVal), '#58c1c3') : null;
+
+      // Inicialmente escondemos os marcadores do cálculo real
+      markerMedia.style.display = 'none';
+      markerMediana.style.display = 'none';
+      if (markerModa) markerModa.style.display = 'none';
+    }
+
+    // Criar marcador na régua, retorna o elemento
+    function criarMarcador(label, posX, color) {
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.left = posX + 'px';
+      marker.style.backgroundColor = color;
+
+      const lbl = document.createElement('div');
+      lbl.className = 'marker-label';
+      lbl.style.left = (posX - 20) + 'px';
+      lbl.textContent = label;
+
+      ruler.appendChild(marker);
+      ruler.appendChild(lbl);
+
+      return marker;
+    }
+
+    // Mostrar ou ocultar os resultados com o botão olho
+    btnToggleResults.addEventListener('click', () => {
+      if (dadosInterativos.length === 0) return;
+
+      showResults = !showResults;
+
+      if (showResults) {
+        const media = calcularMedia(dadosInterativos).toFixed(2);
+        const mediana = calcularMediana(dadosInterativos);
+        const modaVals = calcularModa(dadosInterativos);
+        const modaTexto = modaVals.includes('Nenhuma') ? 'Nenhuma moda' : modaVals.join(', ');
+
+        resultadoEl.style.display = 'block';
+        resultadoEl.innerHTML = `<p><strong>Média:</strong> ${media}</p>
+        <p><strong>Mediana:</strong> ${mediana}</p>
+        <p><strong>Moda:</strong> ${modaTexto}</p>`;
+
+        // Mostrar marcadores reais na régua
+        markerMedia.style.display = 'block';
+        markerMediana.style.display = 'block';
+        if (markerModa) markerModa.style.display = 'block';
+
+        btnToggleResults.setAttribute('aria-pressed', 'true');
+      } else {
+        resultadoEl.style.display = 'none';
+        markerMedia.style.display = 'none';
+        markerMediana.style.display = 'none';
+        if (markerModa) markerModa.style.display = 'none';
+
+        btnToggleResults.setAttribute('aria-pressed', 'false');
+      }
+    });
+
+
+    // ===== Exercício Prático =====
+    // Base: dados fixos para o exercício
+    const dadosExercicio = [2, 4, 4, 5, 7, 9, 9, 9, 10];
+    const mediaEx = calcularMedia(dadosExercicio);
+    const medianaEx = calcularMediana(dadosExercicio);
+    const modaEx = calcularModa(dadosExercicio);
+
+    // Cria régua do exercício para os três seletores usando o mesmo conceito da régua acima
+    // Para simplicidade, vamos criar marcadores que o aluno pode arrastar para definir a resposta
+    // ou clicar para mover o marcador.
+
+    // Limites para régua exercício
+    const exMin = Math.min(...dadosExercicio) - 1;
+    const exMax = Math.max(...dadosExercicio) + 1;
+    const exRulerWidth = 600;
+
+    // Criar uma régua básica para seleção
+    // Usaremos a mesma altura e ticks do estilo padrão
+    function criarRulerEx(idSelector) {
+      const container = document.getElementById(idSelector);
+      container.style.position = 'relative';
+      container.style.height = '80px';
+      container.style.background = 'linear-gradient(to right, #d6f3f4, #bde6e9)';
+      container.style.borderRadius = '10px';
+      container.style.marginBottom = '15px';
+      container.style.cursor = 'pointer';
+
+      // Limpar se tiver algo
+      container.innerHTML = '';
+
+      // Criar ticks
+      const ticksCount = 18;
+      for (let i = 0; i <= ticksCount; i++) {
+        const pos = (i / ticksCount) * exRulerWidth;
+        const val = exMin + ((exMax - exMin) * i / ticksCount);
+        const tick = document.createElement('div');
+        tick.className = 'tick';
+        tick.style.left = pos + 'px';
+        tick.style.height = '25px';
+
+        const label = document.createElement('div');
+        label.className = 'tick-label';
+        label.style.left = (pos - 10) + 'px';
+        label.style.bottom = '30px';
+        label.textContent = val.toFixed(1);
+
+        container.appendChild(tick);
+        container.appendChild(label);
+      }
+
+      // Criar marcador inicial (meio da régua)
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.style.top = '15px';
+      marker.style.backgroundColor = '#208f91';
+      marker.style.left = (exRulerWidth / 2) + 'px';
+      container.appendChild(marker);
+
+      const markerLabel = document.createElement('div');
+      markerLabel.className = 'marker-label';
+      markerLabel.style.top = '58px';
+      markerLabel.style.left = (exRulerWidth / 2 - 20) + 'px';
+      markerLabel.textContent = '';
+      container.appendChild(markerLabel);
+
+      // Função para converter posição para valor
+      function posToVal(posX) {
+        let val = exMin + (posX / exRulerWidth) * (exMax - exMin);
+        return Math.round(val * 10) / 10; // 1 casa decimal arredondada
+      }
+      // Função para converter valor para posição
+      function valToPos(v) {
+        return ((v - exMin) / (exMax - exMin)) * exRulerWidth;
+      }
+
+      // Atualizar valor exibido no label conforme posição do marcador
+      function atualizarValor(posX) {
+        const val = posToVal(posX);
+        markerLabel.textContent = val.toFixed(1);
+        // Ajustar posição label
+        markerLabel.style.left = (posX - 20) + 'px';
+        // Guardar valor na estrutura
+        return val;
+      }
+
+      // Estado do valor selecionado
+      let valorSelecionado = atualizarValor(exRulerWidth / 2);
+
+      // Evento de clique na régua para mover marcador
+      container.addEventListener('click', (e) => {
+        let rect = container.getBoundingClientRect();
+        let clickX = e.clientX - rect.left;
+        if (clickX < 0) clickX = 0;
+        if (clickX > exRulerWidth) clickX = exRulerWidth;
+        marker.style.left = clickX + 'px';
+        valorSelecionado = atualizarValor(clickX);
+      });
+
+      // Drag e drop do marcador para mover (mouse e touch)
+      let isDragging = false;
+      marker.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        e.preventDefault();
+      });
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        let rect = container.getBoundingClientRect();
+        let posX = e.clientX - rect.left;
+        if (posX < 0) posX = 0;
+        if (posX > exRulerWidth) posX = exRulerWidth;
+        marker.style.left = posX + 'px';
+        valorSelecionado = atualizarValor(posX);
+      });
+
+      // Para toque mobile
+      marker.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        e.preventDefault();
+      });
+      window.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        let touch = e.touches[0];
+        let rect = container.getBoundingClientRect();
+        let posX = touch.clientX - rect.left;
+        if (posX < 0) posX = 0;
+        if (posX > exRulerWidth) posX = exRulerWidth;
+        marker.style.left = posX + 'px';
+        valorSelecionado = atualizarValor(posX);
+      });
+
+      // Retorna função para obter valor selecionado
+      return () => valorSelecionado;
+    }
+
+    // Inicializa seletores exercício
+    const getValMedia = criarRulerEx('exMediaSelector');
+    const getValMediana = criarRulerEx('exMedianaSelector');
+    const getValModa = criarRulerEx('exModaSelector');
+
+    // Valida as respostas do aluno com margem pequena (ex: 0.2)
+    function validarExercicio() {
+      const valMediaAluno = getValMedia();
+      const valMedianaAluno = getValMediana();
+      const valModaAluno = getValModa();
+
+      const margem = 0.3;
+      let feedbackMsg = '';
+
+      // Moda pode ser múltipla, aceitar se o valor do aluno estiver próximo de alguma das modas
+      function modaValida(v) {
+        if (modaEx.includes('Nenhuma')) return false;
+        return modaEx.some(m => Math.abs(m - v) <= margem);
+      }
+
+      const mediaOk = Math.abs(valMediaAluno - mediaEx) <= margem;
+      const medianaOk = Math.abs(valMedianaAluno - medianaEx) <= margem;
+      const modaOk = modaValida(valModaAluno);
+
+      feedbackMsg += `Média: ${valMediaAluno.toFixed(1)} — ${mediaOk ? '✔️ Correto' : `❌ Incorreto (Esperado: ${mediaEx.toFixed(1)})`}<br>`;
+      feedbackMsg += `Mediana: ${valMedianaAluno.toFixed(1)} — ${medianaOk ? '✔️ Correto' : `❌ Incorreto (Esperado: ${medianaEx.toFixed(1)})`}<br>`;
+      feedbackMsg += `Moda: ${valModaAluno.toFixed(1)} — ${modaOk ? '✔️ Correto' : `❌ Incorreto (Esperado: ${modaEx.join(', ')})`}<br>`;
+
+      const feedbackEl = document.getElementById('feedbackExercicio');
+      feedbackEl.innerHTML = feedbackMsg;
+      feedbackEl.className = 'feedback ' + ((mediaOk && medianaOk && modaOk) ? 'correct' : 'wrong');
+    }
+  </script>
+
+</body>
+
+</html>
